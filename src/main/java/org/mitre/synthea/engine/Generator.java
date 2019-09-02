@@ -51,7 +51,7 @@ public class Generator {
   private boolean onlyDeadPatients;
   private boolean onlyVeterans;
   public TransitionMetrics metrics;
-  public static final String DEFAULT_STATE = "Massachusetts";
+  public static final String DEFAULT_STATE = "Vestland";
 
   /**
    * Used only for testing and debugging. Populate this field to keep track of all patients
