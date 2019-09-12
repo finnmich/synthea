@@ -165,10 +165,12 @@ public final class LifecycleModule extends Module {
     attributes.put(Person.IDENTIFIER_SSN, ssn);
 
     String city = (String) attributes.get(Person.CITY);
+    String county = (String) attributes.get(Person.COUNTY);
     Location location = (Location) attributes.get(Person.LOCATION);
     if (location != null) {
       // should never happen in practice, but can happen in unit tests
-      location.assignPoint(person, city);
+      location.assignPoint(person, city, county);
+      
       person.attributes.put(Person.ZIP, location.getZipCode(city));
       String[] birthPlace;
       if ("english".equalsIgnoreCase((String) attributes.get(Person.FIRST_LANGUAGE))) {

@@ -241,8 +241,9 @@ public class Location {
    * 
    * @param person Person to assign location information
    * @param cityName Name of the city, or null to choose one randomly
+   * @param countyName Name of county, used to get zipcode foe county if city does not have one
    */
-  public void assignPoint(Person person, String cityName) {
+  public void assignPoint(Person person, String cityName, String countyName) {
     List<Place> zipsForCity = null;
 
     if (cityName == null) {
@@ -253,6 +254,10 @@ public class Location {
 
     if (zipsForCity == null) {
       zipsForCity = zipCodes.get(cityName + " Town");
+    }
+    //Try to get zipcodes for county if none can be found for city name
+    if(zipsForCity == null) {
+      zipsForCity = zipCodes.get(countyName);
     }
     
     Place place = null;
