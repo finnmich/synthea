@@ -38,7 +38,7 @@ public class ExporterTest {
     patient = new Person(12345L);
     patient.attributes.put(Person.BIRTHDATE, time - years(30));
     Location location = new Location("Massachusetts", null);
-    location.assignPoint(patient, location.randomCityName(patient.random));
+    location.assignPoint(patient, location.randomCityName(patient.random), null);
     Provider.loadProviders(location, 1L);
     record = patient.record;
     // Ensure Person's Payer is not null.

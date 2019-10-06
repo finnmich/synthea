@@ -28,7 +28,7 @@ public class EncounterModuleTest {
     person = new Person(0L);
     person.attributes.put(Person.BIRTHDATE, 0L);
     location = new Location("Massachusetts", null);
-    location.assignPoint(person, location.randomCityName(person.random));
+    location.assignPoint(person, location.randomCityName(person.random),null);
     Provider.loadProviders(location, 1L);
     module = new EncounterModule();
     // Ensure Person's Payer is not null.

@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.sis.geometry.DirectPosition2D;
@@ -38,38 +39,37 @@ public class Location {
 
   /**
    * Location is a set of demographic and place information.
-   * @param state The full name of the state.
-   *     e.g. "Ohio" and not an abbreviation.
-   * @param city The full name of the city.
-   *     e.g. "Columbus" or null for an entire state.
+   * 
+   * @param state The full name of the state. e.g. "Ohio" and not an abbreviation.
+   * @param city  The full name of the city. e.g. "Columbus" or null for an entire
+   *              state.
    */
   public Location(String state, String city) {
     try {
       this.city = city;
       this.state = state;
-      
-      Table<String,String,Demographics> allDemographics = Demographics.load(state);
-      
+
+      Table<String, String, Demographics> allDemographics = Demographics.load(state);
+
       // this still works even if only 1 city given,
       // because allDemographics will only contain that 1 city
       this.demographics = allDemographics.row(state);
 
-      if (city != null 
-          && demographics.values().stream().noneMatch(d -> d.city.equalsIgnoreCase(city))) {
+      if (city != null && demographics.values().stream().noneMatch(d -> d.city.equalsIgnoreCase(city))) {
         throw new Exception("The city " + city + " was not found in the demographics file.");
       }
 
       long runningPopulation = 0;
       // linked to ensure consistent iteration order
       populationByCity = new LinkedHashMap<>();
-      populationByCityId = new LinkedHashMap<>();      
+      populationByCityId = new LinkedHashMap<>();
       for (Demographics d : this.demographics.values()) {
         long pop = d.population;
         runningPopulation += pop;
         if (populationByCity.containsKey(d.city)) {
           populationByCity.put(d.city, pop + populationByCity.get(d.city));
         } else {
-          populationByCity.put(d.city, pop);          
+          populationByCity.put(d.city, pop);
         }
         populationByCityId.put(d.id, pop);
       }
@@ -85,16 +85,16 @@ public class Location {
     try {
       filename = Config.get("generate.geography.zipcodes.default_file");
       String csv = Utilities.readResource(filename);
-      List<? extends Map<String,String>> ziplist = SimpleCSV.parse(csv);
+      List<? extends Map<String, String>> ziplist = SimpleCSV.parse(csv);
 
       zipCodes = new HashMap<>();
-      for (Map<String,String> line : ziplist) {
+      for (Map<String, String> line : ziplist) {
         Place place = new Place(line);
-        
+
         if (!place.sameState(state)) {
           continue;
         }
-        
+
         if (!zipCodes.containsKey(place.name)) {
           zipCodes.put(place.name, new ArrayList<Place>());
         }
@@ -106,22 +106,21 @@ public class Location {
       throw new ExceptionInInitializerError(e);
     }
   }
-  
-  
+
   /**
-   * Get the zip code for the given city name. 
-   * If a city has more than one zip code, this picks a random one.
+   * Get the zip code for the given city name. If a city has more than one zip
+   * code, this picks a random one.
    * 
    * @param cityName Name of the city
    * @return a zip code for the given city
    */
   public String getZipCode(String cityName) {
     List<Place> zipsForCity = zipCodes.get(cityName);
-    
+
     if (zipsForCity == null) {
       zipsForCity = zipCodes.get(cityName + " Town");
     }
-    
+
     if (zipsForCity == null || zipsForCity.isEmpty()) {
       return "00000"; // if we don't have the city, just use a dummy
     } else if (zipsForCity.size() >= 1) {
@@ -135,27 +134,28 @@ public class Location {
   }
 
   /**
-   * Pick the name of a random city from the current "world".
-   * If only one city was selected, this will return that one city.
+   * Pick the name of a random city from the current "world". If only one city was
+   * selected, this will return that one city.
    * 
    * @param random Source of randomness
    * @return Demographics of a random city.
    */
   public Demographics randomCity(Random random) {
     if (city != null) {
-      // if we're only generating one city at a time, just use the largest entry for that one city
+      // if we're only generating one city at a time, just use the largest entry for
+      // that one city
       if (fixedCity == null) {
-        fixedCity = demographics.values().stream()
-          .filter(d -> d.city.equalsIgnoreCase(city))
-          .sorted().findFirst().get();
+        fixedCity = demographics.values().stream().filter(d -> d.city.equalsIgnoreCase(city)).sorted().findFirst()
+            .get();
       }
       return fixedCity;
     }
     return demographics.get(randomCityId(random));
   }
-  
+
   /**
    * Pick a random city name, weighted by population.
+   * 
    * @param random Source of randomness
    * @return a city name
    */
@@ -166,6 +166,7 @@ public class Location {
 
   /**
    * Pick a random city id, weighted by population.
+   * 
    * @param random Source of randomness
    * @return a city id
    */
@@ -186,6 +187,7 @@ public class Location {
 
   /**
    * Pick a random birth place, weighted by population.
+   * 
    * @param random Source of randomness
    * @return Array of Strings: [city, state, country, "city, state, country"]
    */
@@ -199,12 +201,11 @@ public class Location {
   }
 
   /**
-   * Method which returns a city from the foreignPlacesOfBirth map if the map contains values
-   * for an ethnicity.
-   * In the case an ethnicity is not present the method returns the value from a call to
-   * randomCityName().
+   * Method which returns a city from the foreignPlacesOfBirth map if the map
+   * contains values for an ethnicity. In the case an ethnicity is not present the
+   * method returns the value from a call to randomCityName().
    *
-   * @param random the Random to base our city selection on
+   * @param random    the Random to base our city selection on
    * @param ethnicity the ethnicity to look for cities in
    * @return A String representing the place of birth
    */
@@ -222,12 +223,12 @@ public class Location {
       if (split.length != 3) {
         birthPlace = randomBirthPlace(random);
       } else {
-        //concatenate all the results together, adding spaces behind commas for readability
-        birthPlace = ArrayUtils.addAll(split,
-            new String[] {randomBirthPlace.replaceAll(",", ", ")});
+        // concatenate all the results together, adding spaces behind commas for
+        // readability
+        birthPlace = ArrayUtils.addAll(split, new String[] { randomBirthPlace.replaceAll(",", ", ") });
       }
 
-    } else {  //if we can't find a foreign city at least return something
+    } else { // if we can't find a foreign city at least return something
       birthPlace = randomBirthPlace(random);
     }
 
@@ -235,13 +236,15 @@ public class Location {
   }
 
   /**
-   * Assign a geographic location to the given Person. Location includes City, State, Zip, and
-   * Coordinate. If cityName is given, then Zip and Coordinate are restricted to valid values for
-   * that city. If cityName is not given, then picks a random city from the list of all cities.
+   * Assign a geographic location to the given Person. Location includes City,
+   * State, Zip, and Coordinate. If cityName is given, then Zip and Coordinate are
+   * restricted to valid values for that city. If cityName is not given, then
+   * picks a random city from the list of all cities.
    * 
-   * @param person Person to assign location information
-   * @param cityName Name of the city, or null to choose one randomly
-   * @param countyName Name of county, used to get zipcode foe county if city does not have one
+   * @param person     Person to assign location information
+   * @param cityName   Name of the city, or null to choose one randomly
+   * @param countyName Name of county, used to get zipcode foe county if city does
+   *                   not have one
    */
   public void assignPoint(Person person, String cityName, String countyName) {
     List<Place> zipsForCity = null;
@@ -255,11 +258,14 @@ public class Location {
     if (zipsForCity == null) {
       zipsForCity = zipCodes.get(cityName + " Town");
     }
-    //Try to get zipcodes for county if none can be found for city name
-    if(zipsForCity == null) {
+    // Try to get zipcodes for county if none can be found for city name
+    if (zipsForCity == null) {
       zipsForCity = zipCodes.get(countyName);
     }
-    
+    // Just get a random zipcode - flatten all lists of zipcodes to one list
+    if (zipsForCity == null) {
+      zipsForCity = zipCodes.values().stream().flatMap(List::stream).collect(Collectors.toList());
+    }
     Place place = null;
     if (zipsForCity.size() == 1) {
       place = zipsForCity.get(0);
@@ -267,7 +273,7 @@ public class Location {
       // pick a random one
       place = zipsForCity.get(person.randInt(zipsForCity.size()));
     }
-    
+
     if (place != null) {
       // Get the coordinate of the city/town
       DirectPosition2D coordinate = place.getLatLon().clone();
@@ -283,12 +289,13 @@ public class Location {
   }
 
   /**
-   * Assign a geographic location to the given Clinician. Location includes City, State, Zip, and
-   * Coordinate. If cityName is given, then Zip and Coordinate are restricted to valid values for
-   * that city. If cityName is not given, then picks a random city from the list of all cities.
+   * Assign a geographic location to the given Clinician. Location includes City,
+   * State, Zip, and Coordinate. If cityName is given, then Zip and Coordinate are
+   * restricted to valid values for that city. If cityName is not given, then
+   * picks a random city from the list of all cities.
    * 
    * @param clinician Clinician to assign location information
-   * @param cityName Name of the city, or null to choose one randomly
+   * @param cityName  Name of the city, or null to choose one randomly
    */
   public void assignPoint(Clinician clinician, String cityName) {
     List<Place> zipsForCity = null;
@@ -302,7 +309,7 @@ public class Location {
     if (zipsForCity == null) {
       zipsForCity = zipCodes.get(cityName + " Town");
     }
-    
+
     Place place = null;
     if (zipsForCity.size() == 1) {
       place = zipsForCity.get(0);
@@ -310,7 +317,7 @@ public class Location {
       // pick a random one
       place = zipsForCity.get(clinician.randInt(zipsForCity.size()));
     }
-    
+
     if (place != null) {
       // Get the coordinate of the city/town
       DirectPosition2D coordinate = place.getLatLon().clone();
@@ -324,16 +331,16 @@ public class Location {
       clinician.attributes.put(Person.COORDINATE, coordinate);
     }
   }
-  
+
   private static LinkedHashMap<String, String> loadAbbreviations() {
     LinkedHashMap<String, String> abbreviations = new LinkedHashMap<String, String>();
     String filename = null;
     try {
       filename = Config.get("generate.geography.zipcodes.default_file");
       String csv = Utilities.readResource(filename);
-      List<? extends Map<String,String>> ziplist = SimpleCSV.parse(csv);
+      List<? extends Map<String, String>> ziplist = SimpleCSV.parse(csv);
 
-      for (Map<String,String> line : ziplist) {
+      for (Map<String, String> line : ziplist) {
         String state = line.get("USPS");
         String abbreviation = line.get("ST");
         abbreviations.put(state, abbreviation);
@@ -347,17 +354,19 @@ public class Location {
 
   /**
    * Get the abbreviation for a state.
+   * 
    * @param state State name. e.g. "Massachusetts"
    * @return state abbreviation. e.g. "MA"
    */
   public static String getAbbreviation(String state) {
     return stateAbbreviations.get(state);
   }
-  
+
   /**
-   * Get the index for a state. This maybe useful for
-   * exporters where you want to generate a list of unique
-   * identifiers that do not collide across state-boundaries.
+   * Get the index for a state. This maybe useful for exporters where you want to
+   * generate a list of unique identifiers that do not collide across
+   * state-boundaries.
+   * 
    * @param state State name. e.g. "Massachusetts"
    * @return state index. e.g. 1 or 50
    */
@@ -374,6 +383,7 @@ public class Location {
 
   /**
    * Get the state name from an abbreviation.
+   * 
    * @param abbreviation State abbreviation. e.g. "MA"
    * @return state name. e.g. "Massachusetts"
    */
@@ -392,9 +402,9 @@ public class Location {
     try {
       filename = Config.get("generate.geography.timezones.default_file");
       String csv = Utilities.readResource(filename);
-      List<? extends Map<String,String>> tzlist = SimpleCSV.parse(csv);
+      List<? extends Map<String, String>> tzlist = SimpleCSV.parse(csv);
 
-      for (Map<String,String> line : tzlist) {
+      for (Map<String, String> line : tzlist) {
         String state = line.get("STATE");
         String timezone = line.get("TIMEZONE");
         timezones.put(state, timezone);
@@ -407,19 +417,23 @@ public class Location {
   }
 
   private static Map<String, List<String>> loadCitiesByLanguage() {
-    //get the default foreign_birthplace file if we can't get the file listed in the config
+    // get the default foreign_birthplace file if we can't get the file listed in
+    // the config
     String resource = Config.get("generate.geography.foreign.birthplace.default_file",
-            "geography/foreign_birthplace.json");
+        "geography/foreign_birthplace.json");
     return loadCitiesByLanguage(resource);
   }
 
   /**
-   * Load a resource which contains foreign places of birth based on ethnicity in json format:
+   * Load a resource which contains foreign places of birth based on ethnicity in
+   * json format:
    * <p/>
-   * {"ethnicity":["city1,state1,country1", "city2,state2,country2"..., "cityN,stateN,countryN"]}
+   * {"ethnicity":["city1,state1,country1", "city2,state2,country2"...,
+   * "cityN,stateN,countryN"]}
    * <p/>
-   * see src/main/resources/foreign_birthplace.json for a working example
-   * package protected for testing
+   * see src/main/resources/foreign_birthplace.json for a working example package
+   * protected for testing
+   * 
    * @param resource A json file listing foreign places of birth by ethnicity.
    * @return Map of ethnicity to Lists of Strings "city,state,country"
    */
@@ -438,8 +452,9 @@ public class Location {
   }
 
   /**
-   * Get the full name of the timezone by the full name of the state.
-   * Timezones are approximate.
+   * Get the full name of the timezone by the full name of the state. Timezones
+   * are approximate.
+   * 
    * @param state The full name of the state (e.g. "Massachusetts")
    * @return The full name of the timezone (e.g. "Eastern Standard Time")
    */

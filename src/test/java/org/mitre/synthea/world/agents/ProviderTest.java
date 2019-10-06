@@ -75,7 +75,7 @@ public class ProviderTest {
   public void testNearestInpatientInState() {
     Provider.loadProviders(location, 1L);
     Person person = new Person(0L);
-    location.assignPoint(person, location.randomCityName(person.random));
+    location.assignPoint(person, location.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.INPATIENT, 0);
     Assert.assertNotNull(provider);
   }
@@ -84,7 +84,7 @@ public class ProviderTest {
   public void testNearestAmbulatoryInState() {
     Provider.loadProviders(location, 1L);
     Person person = new Person(0L);
-    location.assignPoint(person, location.randomCityName(person.random));
+    location.assignPoint(person, location.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.AMBULATORY, 0);
     Assert.assertNotNull(provider);
   }
@@ -93,7 +93,7 @@ public class ProviderTest {
   public void testNearestWellnessInState() {
     Provider.loadProviders(location, 1L);
     Person person = new Person(0L);
-    location.assignPoint(person, location.randomCityName(person.random));
+    location.assignPoint(person, location.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.WELLNESS, 0);
     Assert.assertNotNull(provider);
   }
@@ -102,7 +102,7 @@ public class ProviderTest {
   public void testNearestEmergencyInState() {
     Provider.loadProviders(location, 1L);
     Person person = new Person(0L);
-    location.assignPoint(person, location.randomCityName(person.random));
+    location.assignPoint(person, location.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.EMERGENCY, 0);
     Assert.assertNotNull(provider);
   }
@@ -115,7 +115,7 @@ public class ProviderTest {
     Location capital = new Location("District of Columbia", null);
     Provider.loadProviders(capital, 1L);
     Person person = new Person(0L);
-    capital.assignPoint(person, capital.randomCityName(person.random));
+    capital.assignPoint(person, capital.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.EMERGENCY, 0);
     Assert.assertNotNull(provider);
   }
@@ -124,7 +124,7 @@ public class ProviderTest {
   public void testNearestUrgentCareInState() {
     Provider.loadProviders(location, 1L);
     Person person = new Person(0L);
-    location.assignPoint(person, location.randomCityName(person.random));
+    location.assignPoint(person, location.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.URGENTCARE, 0);
     Assert.assertNotNull(provider); 
   }
@@ -133,7 +133,7 @@ public class ProviderTest {
   public void testNearestInpatientInCity() {
     Provider.loadProviders(city, 1L);
     Person person = new Person(0L);
-    city.assignPoint(person, city.randomCityName(person.random));
+    city.assignPoint(person, city.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.INPATIENT, 0);
     Assert.assertNotNull(provider);
   }
@@ -142,7 +142,7 @@ public class ProviderTest {
   public void testNearestAmbulatoryInCity() {
     Provider.loadProviders(city, 1L);
     Person person = new Person(0L);
-    city.assignPoint(person, city.randomCityName(person.random));
+    city.assignPoint(person, city.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.AMBULATORY, 0);
     Assert.assertNotNull(provider);
   }
@@ -151,7 +151,7 @@ public class ProviderTest {
   public void testNearestWellnessInCity() {
     Provider.loadProviders(city, 1L);
     Person person = new Person(0L);
-    city.assignPoint(person, city.randomCityName(person.random));
+    city.assignPoint(person, city.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.WELLNESS, 0);
     Assert.assertNotNull(provider);
   }
@@ -160,7 +160,7 @@ public class ProviderTest {
   public void testNearestEmergencyInCity() {
     Provider.loadProviders(city, 1L);
     Person person = new Person(0L);
-    city.assignPoint(person, city.randomCityName(person.random));
+    city.assignPoint(person, city.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.EMERGENCY, 0);
     Assert.assertNotNull(provider);
   }
@@ -169,7 +169,7 @@ public class ProviderTest {
   public void testNearestUrgentCareInCity() {
     Provider.loadProviders(city, 1L);
     Person person = new Person(0L);
-    city.assignPoint(person, city.randomCityName(person.random));
+    city.assignPoint(person, city.randomCityName(person.random),null);
     Provider provider = Provider.findService(person, EncounterType.URGENTCARE, 0);
     Assert.assertNotNull(provider);
   }

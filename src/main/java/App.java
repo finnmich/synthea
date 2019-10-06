@@ -48,7 +48,6 @@ public class App {
     if (args != null && args.length > 0) {
       try {
         Queue<String> argsQ = new LinkedList<String>(Arrays.asList(args));
-        
         while (!argsQ.isEmpty()) {
           String currArg = argsQ.poll();
 
@@ -119,6 +118,7 @@ public class App {
     }
     
     if (validArgs) {
+      options.seed=12;
       Generator generator = new Generator(options);
       generator.run();
     }
